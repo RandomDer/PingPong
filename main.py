@@ -17,22 +17,19 @@ clock = time.Clock()
 FPS = 60
 
 speed = 5
+speed_x = 3
+speed_y = 3
 
 racket = 'racket.png'
 tenis_ball = 'tenis_ball.png'
 
-lost = 0
-score = 0
-
-#mixer.init()
-#mixer.music.load('space.ogg')
-#fire_sound = mixer.Sound('fire.ogg')
-#mixer.music.play()
+#score1 = 0
+#score2 = 0
 
 class GameSprite(sprite.Sprite):
     def __init__(self, player_image, player_x, player_y, player_speed, wight, height):
         super().__init__()
-        self.image = transform.scale(image.load(player_image), (wight, height)) #вместе 55,55 - параметры
+        self.image = transform.scale(image.load(player_image), (wight, height))
         self.speed = player_speed
         self.rect = self.image.get_rect()
         self.rect.x = player_x
@@ -56,35 +53,30 @@ class Player(GameSprite):
     def reset(self):
         window.blit(self.image, (self.rect.x, self.rect.y))
 
-class Ball(GameSprite):
-    def reset(self):
-        window.blit(self.image, (self.rect.x, self.rect.y))
-        #global lost
-        #if self.rect.y > win_height:
-           #self.rect.y = 0
-            #self.rect.x = randint(80, win_width - 80)
-
-
-#balls = sprite.Group()
-
 racket1 = Player('racket.png', 30, 200, 4, 50, 150) 
 racket2 = Player('racket.png', 520, 200, 4, 50, 150)
 ball = GameSprite('tenis_ball.png', 275, 225, 4, 50, 50)
 
-#font.init()
-#font1 = font.SysFont('Arial', 40)
-
-#font.init()
-#font = font.SysFont('Arial', 70)
-
-#winfin = font.render(
-#    'YOU WIN!', True, (255, 255, 0)
+font.init()
+font1 = font.SysFont('Arial', 35)
+font.init()
+lose1 = font1.render(
+    'PLAYER 1 LOSE!', True, (180, 0, 0)
+)
+lose2 = font1.render(
+    'PLAYER 2 LOSE!', True, (180, 0, 0)
+)
+win1 = font1.render(
+    'PLAYER 1 WIN!', True, (180, 180, 0)
+)
+win2 = font1.render(
+    'PLAYER 2 WIN!', True, (180, 180, 0)
+)
+#score1 = font1.render(
+#    'Score:', True, (255, 255, 255)
 #)
-#fail = font.render(
-#    'YOU LOSE!', True, (255, 0, 0)
-#)
-#bullet_reload = font1.render(
-#    'Погодь...перезагрузка 3 сек', True, (255, 255, 255)
+#score2 = font1.render(
+#    'Score:', True, (255, 255, 255)
 #)
 
 finish = False
@@ -96,37 +88,26 @@ while game:
 
     if finish != True:
         window.blit(background,(0,0))
-        #lose = font1.render(
-            #'Пропущено:' + str(lost), True, (255, 255, 255)
-        #)
-        #win = font1.render(
-            #'Сбито:'+ str(score), True, (255, 255, 255)
-        #)
+        ball.rect.x += speed_x
+        ball.rect.y += speed_y
+        if ball.rect.y > win_height-50 or ball.rect.y < 0:
+            speed_y *= -1
+        if sprite.collide_rect(racket1, ball) or sprite.collide_rect(racket2, ball):
+            speed_x *= -1
+        if ball.rect.x < 0:
+            finish = True
+            window.blit(lose1, (200, 200))
+            window.blit(win2, (200, 230))
+        if ball.rect.x > win_width-50:
+            finish = True
+            window.blit(lose2, (200, 200))
+            window.blit(win1, (200, 230))
 
         racket1.update_l()
         racket1.reset()
         racket2.update_r()
         racket2.reset()
         ball.reset()
-
-        #window.blit(win, (10, 20))
-        #window.blit(lose, (10, 50))
-        #collides = sprite.groupcollide(monsters, bullets, True, True)
-        #sprites_list_monster = sprite.spritecollide(ship, monsters, False)
-        #sprites_list_aster = sprite.spritecollide(ship, asteroids, False)
-
-        #for collide in collides:
-            #monster = Enemy(img_enemy, randint(80, win_width - 80), -40, 80, 50, randint(1, 3))
-            #monsters.add(monster)
-            #score += 1
-        
-        #if score >= 10:
-            #window.blit(winfin, (200, 200))
-            #finish = True
-
-        #if lost >= 3 or sprites_list_monster or sprites_list_aster:
-            #window.blit(fail, (200, 200))
-            #finish = True
             
         display.update()
 
